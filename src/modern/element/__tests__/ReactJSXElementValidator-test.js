@@ -26,7 +26,7 @@ describe('ReactJSXElementValidator', function() {
 
     React = require('React');
     ReactFragment = require('ReactFragment');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     Component = class {
       render() { return <div />; }

@@ -12,7 +12,7 @@
 'use strict';
 
 var React = require('React');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 var reactComponentExpect = require('reactComponentExpect');
 
 var TestComponent = React.createClass({

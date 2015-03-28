@@ -22,7 +22,7 @@ var assign = require('Object.assign');
 var invariant = require('invariant');
 var warning = require('warning');
 
-var dirtyComponents = [];
+// REMOVED: Dirty Components now in serverContext:  var dirtyComponents = [];
 var asapCallbackQueue = CallbackQueue.getPooled();
 var asapEnqueued = false;
 
@@ -38,19 +38,19 @@ function ensureInjected() {
 
 var NESTED_UPDATES = {
   initialize: function() {
-    this.dirtyComponentsLength = dirtyComponents.length;
+    this.dirtyComponentsLength = this._serverContext.dirtyComponents.length;
   },
   close: function() {
-    if (this.dirtyComponentsLength !== dirtyComponents.length) {
+    if (this.dirtyComponentsLength !== this._serverContext.dirtyComponents.length) {
       // Additional updates were enqueued by componentDidUpdate handlers or
       // similar; before our own UPDATE_QUEUEING wrapper closes, we want to run
       // these new updates so that if A's componentDidUpdate calls setState on
       // B, B will update before the callback A's updater provided when calling
       // setState.
-      dirtyComponents.splice(0, this.dirtyComponentsLength);
-      flushBatchedUpdates();
+      this._serverContext.dirtyComponents.splice(0, this.dirtyComponentsLength);
+      flushBatchedUpdates(this._serverContext);
     } else {
-      dirtyComponents.length = 0;
+      this._serverContext.dirtyComponents.length = 0;
     }
   }
 };
@@ -66,7 +66,7 @@ var UPDATE_QUEUEING = {
 
 var TRANSACTION_WRAPPERS = [NESTED_UPDATES, UPDATE_QUEUEING];
 
-function ReactUpdatesFlushTransaction() {
+function ReactUpdatesFlushTransaction(serverContext) {
   this.reinitializeTransaction();
   this.dirtyComponentsLength = null;
   this.callbackQueue = CallbackQueue.getPooled();
@@ -89,7 +89,7 @@ assign(
     this.reconcileTransaction = null;
   },
 
-  perform: function(method, scope, a) {
+  perform: function(method, scope, a, b) {
     // Essentially calls `this.reconcileTransaction.perform(method, scope, a)`
     // with this transaction's wrappers around it.
     return Transaction.Mixin.perform.call(
@@ -98,16 +98,17 @@ assign(
       this.reconcileTransaction,
       method,
       scope,
-      a
+      a,
+      b
     );
   }
 });
 
 PooledClass.addPoolingTo(ReactUpdatesFlushTransaction);
 
-function batchedUpdates(callback, a, b, c, d) {
+function batchedUpdates(callback, serverContext, a, b, c, d) {
   ensureInjected();
-  batchingStrategy.batchedUpdates(callback, a, b, c, d);
+  batchingStrategy.batchedUpdates(callback, serverContext, a, b, c, d);
 }
 
 /**
@@ -121,8 +122,9 @@ function mountOrderComparator(c1, c2) {
   return c1._mountOrder - c2._mountOrder;
 }
 
-function runBatchedUpdates(transaction) {
+function runBatchedUpdates(transaction, serverContext) {
   var len = transaction.dirtyComponentsLength;
+  var dirtyComponents = serverContext.dirtyComponents;
   invariant(
     len === dirtyComponents.length,
     'Expected flush transaction\'s stored dirty-components length (%s) to ' +
@@ -164,15 +166,16 @@ function runBatchedUpdates(transaction) {
   }
 }
 
-var flushBatchedUpdates = function() {
+var flushBatchedUpdates = function(serverContext) {
   // ReactUpdatesFlushTransaction's wrappers will clear the dirtyComponents
   // array and perform any updates enqueued by mount-ready handlers (i.e.,
   // componentDidUpdate) but we need to check here too in order to catch
   // updates enqueued by setState callbacks and asap calls.
-  while (dirtyComponents.length || asapEnqueued) {
-    if (dirtyComponents.length) {
+  while (serverContext.dirtyComponents.length || asapEnqueued) {
+    if (serverContext.dirtyComponents.length) {
       var transaction = ReactUpdatesFlushTransaction.getPooled();
-      transaction.perform(runBatchedUpdates, null, transaction);
+      transaction._serverContext = serverContext;
+      transaction.perform(runBatchedUpdates, null, transaction, serverContext);
       ReactUpdatesFlushTransaction.release(transaction);
     }
 
@@ -195,7 +198,7 @@ flushBatchedUpdates = ReactPerf.measure(
  * Mark a component as needing a rerender, adding an optional callback to a
  * list of functions which will be executed once the rerender occurs.
  */
-function enqueueUpdate(component) {
+function enqueueUpdate(serverContext, component) {
   ensureInjected();
 
   // Various parts of our code (such as ReactCompositeComponent's
@@ -212,11 +215,16 @@ function enqueueUpdate(component) {
   );
 
   if (!batchingStrategy.isBatchingUpdates) {
-    batchingStrategy.batchedUpdates(enqueueUpdate, component);
+    // TODO: this is ugly, we need the serverContext for the parameter to
+    // enqueueUpdate *and* the the batchingStrategy for the transaction.
+    // Means passing serverContext twice
+    batchingStrategy.batchedUpdates(
+      enqueueUpdate, serverContext, serverContext, component
+    );
     return;
   }
 
-  dirtyComponents.push(component);
+  serverContext.dirtyComponents.push(component);
 }
 
 /**

@@ -89,7 +89,7 @@ function assertValidProps(props) {
   );
 }
 
-function putListener(id, registrationName, listener, transaction) {
+function putListener(serverContext, id, registrationName, listener, transaction) {
   if (__DEV__) {
     // IE8 has no API for event capturing and the `onScroll` event doesn't
     // bubble.
@@ -98,7 +98,7 @@ function putListener(id, registrationName, listener, transaction) {
       'This browser doesn\'t support the `onScroll` event'
     );
   }
-  var container = ReactMount.findReactContainerForID(id);
+  var container = ReactMount.findReactContainerForID(serverContext, id);
   if (container) {
     var doc = container.nodeType === ELEMENT_NODE_TYPE ?
       container.ownerDocument :
@@ -224,7 +224,8 @@ ReactDOMComponent.Mixin = {
         continue;
       }
       if (registrationNameModules.hasOwnProperty(propKey)) {
-        putListener(this._rootNodeID, propKey, propValue, transaction);
+        // Explicitly removed for server-react. We don't want to listen to any events.
+        // putListener(this._serverContext, this._rootNodeID, propKey, propValue, transaction);
       } else {
         if (propKey === STYLE) {
           if (propValue) {
@@ -357,6 +358,7 @@ ReactDOMComponent.Mixin = {
           DOMProperty.isStandardName[propKey] ||
           DOMProperty.isCustomAttribute(propKey)) {
         BackendIDOperations.deletePropertyByID(
+          this._serverContext,
           this._rootNodeID,
           propKey
         );
@@ -396,11 +398,13 @@ ReactDOMComponent.Mixin = {
           styleUpdates = nextProp;
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) {
-        putListener(this._rootNodeID, propKey, nextProp, transaction);
+        // Explicitly removed for server-react. We don't want to listen to any events
+        // putListener(this._serverContext, this._rootNodeID, propKey, nextProp, transaction);
       } else if (
           DOMProperty.isStandardName[propKey] ||
           DOMProperty.isCustomAttribute(propKey)) {
         BackendIDOperations.updatePropertyByID(
+          this._serverContext,
           this._rootNodeID,
           propKey,
           nextProp
@@ -409,6 +413,7 @@ ReactDOMComponent.Mixin = {
     }
     if (styleUpdates) {
       BackendIDOperations.updateStylesByID(
+        this._serverContext,
         this._rootNodeID,
         styleUpdates
       );
@@ -458,6 +463,7 @@ ReactDOMComponent.Mixin = {
     } else if (nextHtml != null) {
       if (lastHtml !== nextHtml) {
         BackendIDOperations.updateInnerHTMLByID(
+          this._serverContext,
           this._rootNodeID,
           nextHtml
         );
@@ -476,7 +482,7 @@ ReactDOMComponent.Mixin = {
   unmountComponent: function() {
     this.unmountChildren();
     ReactBrowserEventEmitter.deleteAllListeners(this._rootNodeID);
-    ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._rootNodeID);
+    ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._serverContext, this._rootNodeID);
     this._rootNodeID = null;
   }
 

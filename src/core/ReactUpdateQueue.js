@@ -21,13 +21,13 @@ var assign = require('Object.assign');
 var invariant = require('invariant');
 var warning = require('warning');
 
-function enqueueUpdate(internalInstance) {
+function enqueueUpdate(serverContext, internalInstance) {
   if (internalInstance !== ReactLifeCycle.currentlyMountingInstance) {
     // If we're in a componentWillMount handler, don't enqueue a rerender
     // because ReactUpdates assumes we're in a browser context (which is
     // wrong for server rendering) and we're about to do a render anyway.
     // See bug in #1740.
-    ReactUpdates.enqueueUpdate(internalInstance);
+    ReactUpdates.enqueueUpdate(serverContext, internalInstance);
   }
 }
 
@@ -79,7 +79,7 @@ var ReactUpdateQueue = {
    * @param {?function} callback Called after state is updated.
    * @internal
    */
-  enqueueCallback: function(publicInstance, callback) {
+  enqueueCallback: function(serverContext, publicInstance, callback) {
     invariant(
       typeof callback === 'function',
       'enqueueCallback(...): You called `setProps`, `replaceProps`, ' +
@@ -107,10 +107,10 @@ var ReactUpdateQueue = {
     // componentWillMount. Either fix it or disallow doing so completely in
     // favor of getInitialState. Alternatively, we can disallow
     // componentWillMount during server-side rendering.
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
-  enqueueCallbackInternal: function(internalInstance, callback) {
+  enqueueCallbackInternal: function(serverContext, internalInstance, callback) {
     invariant(
       typeof callback === 'function',
       'enqueueCallback(...): You called `setProps`, `replaceProps`, ' +
@@ -122,7 +122,7 @@ var ReactUpdateQueue = {
     } else {
       internalInstance._pendingCallbacks = [callback];
     }
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
   /**
@@ -138,7 +138,7 @@ var ReactUpdateQueue = {
    * @param {ReactClass} publicInstance The instance that should rerender.
    * @internal
    */
-  enqueueForceUpdate: function(publicInstance) {
+  enqueueForceUpdate: function(serverContext, publicInstance) {
     var internalInstance = getInternalInstanceReadyForUpdate(
       publicInstance,
       'forceUpdate'
@@ -150,7 +150,7 @@ var ReactUpdateQueue = {
 
     internalInstance._pendingForceUpdate = true;
 
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
   /**
@@ -164,7 +164,7 @@ var ReactUpdateQueue = {
    * @param {object} completeState Next state.
    * @internal
    */
-  enqueueReplaceState: function(publicInstance, completeState) {
+  enqueueReplaceState: function(serverContext, publicInstance, completeState) {
     var internalInstance = getInternalInstanceReadyForUpdate(
       publicInstance,
       'replaceState'
@@ -177,7 +177,7 @@ var ReactUpdateQueue = {
     internalInstance._pendingStateQueue = [completeState];
     internalInstance._pendingReplaceState = true;
 
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
   /**
@@ -190,7 +190,7 @@ var ReactUpdateQueue = {
    * @param {object} partialState Next partial state to be merged with state.
    * @internal
    */
-  enqueueSetState: function(publicInstance, partialState) {
+  enqueueSetState: function(serverContext, publicInstance, partialState) {
     var internalInstance = getInternalInstanceReadyForUpdate(
       publicInstance,
       'setState'
@@ -205,7 +205,7 @@ var ReactUpdateQueue = {
       (internalInstance._pendingStateQueue = []);
     queue.push(partialState);
 
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
   /**
@@ -215,7 +215,7 @@ var ReactUpdateQueue = {
    * @param {object} partialProps Subset of the next props.
    * @internal
    */
-  enqueueSetProps: function(publicInstance, partialProps) {
+  enqueueSetProps: function(serverContext, publicInstance, partialProps) {
     var internalInstance = getInternalInstanceReadyForUpdate(
       publicInstance,
       'setProps'
@@ -244,7 +244,7 @@ var ReactUpdateQueue = {
       props
     );
 
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
   /**
@@ -254,7 +254,7 @@ var ReactUpdateQueue = {
    * @param {object} props New props.
    * @internal
    */
-  enqueueReplaceProps: function(publicInstance, props) {
+  enqueueReplaceProps: function(serverContext, publicInstance, props) {
     var internalInstance = getInternalInstanceReadyForUpdate(
       publicInstance,
       'replaceProps'
@@ -282,12 +282,12 @@ var ReactUpdateQueue = {
       props
     );
 
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   },
 
-  enqueueElementInternal: function(internalInstance, newElement) {
+  enqueueElementInternal: function(serverContext, internalInstance, newElement) {
     internalInstance._pendingElement = newElement;
-    enqueueUpdate(internalInstance);
+    enqueueUpdate(serverContext, internalInstance);
   }
 
 };

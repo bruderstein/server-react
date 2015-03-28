@@ -12,6 +12,7 @@
 'use strict';
 
 var ReactUpdateQueue = require('ReactUpdateQueue');
+var ReactInstanceMap = require('ReactInstanceMap');
 
 var invariant = require('invariant');
 var warning = require('warning');
@@ -64,9 +65,23 @@ ReactComponent.prototype.setState = function(partialState, callback) {
       'instead, use forceUpdate().'
     );
   }
-  ReactUpdateQueue.enqueueSetState(this, partialState);
+
+  // The internalInstance is checked to make the tests that call setState in getInitialState pass
+  // They check that it errors correctly.  This maintains the existing behaviour.
+  // TODO: It would be nice to fix this error so it's not the same as the other error
+  var internalInstance = ReactInstanceMap.get(this);
+  if (!internalInstance) {
+    console.error(
+      'Warning: setState(...): Can only update a mounted or ' +
+      'mounting component. This usually means you called setState() on an ' +
+      'unmounted component. This is a no-op.'
+    );
+    return;
+  }
+
+  ReactUpdateQueue.enqueueSetState(internalInstance._serverContext, this, partialState);
   if (callback) {
-    ReactUpdateQueue.enqueueCallback(this, callback);
+    ReactUpdateQueue.enqueueCallback(internalInstance._serverContext, this, callback);
   }
 };
 
@@ -85,9 +100,9 @@ ReactComponent.prototype.setState = function(partialState, callback) {
  * @protected
  */
 ReactComponent.prototype.forceUpdate = function(callback) {
-  ReactUpdateQueue.enqueueForceUpdate(this);
+  ReactUpdateQueue.enqueueForceUpdate(ReactInstanceMap.get(this)._serverContext, this);
   if (callback) {
-    ReactUpdateQueue.enqueueCallback(this, callback);
+    ReactUpdateQueue.enqueueCallback(ReactInstanceMap.get(this)._serverContext, this, callback);
   }
 };
 

@@ -22,7 +22,7 @@ describe('ReactElementClone', function() {
 
   beforeEach(function() {
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   it('should clone a DOM component with new props', function() {

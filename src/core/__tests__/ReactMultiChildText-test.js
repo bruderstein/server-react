@@ -17,7 +17,7 @@ require('mock-modules');
 
 var React = require('React');
 var ReactFragment = require('ReactFragment');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
 var reactComponentExpect = require('reactComponentExpect');
 

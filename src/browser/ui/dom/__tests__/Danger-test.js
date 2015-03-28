@@ -20,6 +20,7 @@ describe('Danger', function() {
   describe('dangerouslyRenderMarkup', function() {
     var Danger;
     var transaction;
+    var serverContext;
 
     beforeEach(function() {
       require('mock-modules').dumpCache();
@@ -27,26 +28,30 @@ describe('Danger', function() {
 
       var ReactReconcileTransaction = require('ReactReconcileTransaction');
       transaction = new ReactReconcileTransaction();
+      // TODO: create a class for ServerContext, and pool it.
+      serverContext = { document: document, updateQueue: [], markupQueue: [], dirtyComponents: [] };
     });
 
     it('should render markup', function() {
       var markup = instantiateReactComponent(
+        serverContext,
         <div />
       ).mountComponent('.rX', transaction, {});
-      var output = Danger.dangerouslyRenderMarkup([markup])[0];
+      var output = Danger.dangerouslyRenderMarkup(serverContext, [markup])[0];
 
       expect(output.nodeName).toBe('DIV');
     });
 
     it('should render markup with props', function() {
       var markup = instantiateReactComponent(
+        serverContext,
         <div className="foo" />
       ).mountComponent(
         '.rX',
         transaction,
         {}
       );
-      var output = Danger.dangerouslyRenderMarkup([markup])[0];
+      var output = Danger.dangerouslyRenderMarkup(serverContext, [markup])[0];
 
       expect(output.nodeName).toBe('DIV');
       expect(output.className).toBe('foo');
@@ -54,15 +59,16 @@ describe('Danger', function() {
 
     it('should render wrapped markup', function() {
       var markup = instantiateReactComponent(
+        serverContext,
         <th />
       ).mountComponent('.rX', transaction, {});
-      var output = Danger.dangerouslyRenderMarkup([markup])[0];
+      var output = Danger.dangerouslyRenderMarkup(serverContext, [markup])[0];
 
       expect(output.nodeName).toBe('TH');
     });
 
     it('should render lists of markup with similar `nodeName`', function() {
-      var renderedMarkup = Danger.dangerouslyRenderMarkup(
+      var renderedMarkup = Danger.dangerouslyRenderMarkup(serverContext,
         ['<p id="A">1</p>', '<p id="B">2</p>', '<p id="C">3</p>']
       );
 
@@ -78,7 +84,7 @@ describe('Danger', function() {
     });
 
     it('should render lists of markup with different `nodeName`', function() {
-      var renderedMarkup = Danger.dangerouslyRenderMarkup(
+      var renderedMarkup = Danger.dangerouslyRenderMarkup(serverContext,
         ['<p id="A">1</p>', '<td id="B">2</td>', '<p id="C">3</p>']
       );
 
@@ -95,14 +101,14 @@ describe('Danger', function() {
 
     it('should throw when rendering invalid markup', function() {
       expect(function() {
-        Danger.dangerouslyRenderMarkup(['']);
+        Danger.dangerouslyRenderMarkup(serverContext, ['']);
       }).toThrow(
         'Invariant Violation: dangerouslyRenderMarkup(...): Missing markup.'
       );
 
       spyOn(console, "error");
 
-      var renderedMarkup = Danger.dangerouslyRenderMarkup(['<p></p><p></p>']);
+      var renderedMarkup = Danger.dangerouslyRenderMarkup(serverContext, ['<p></p><p></p>']);
       var args = console.error.argsForCall[0];
 
       expect(renderedMarkup.length).toBe(1);

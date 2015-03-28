@@ -23,8 +23,8 @@ describe('ReactDOMComponent', function() {
     var ReactTestUtils;
 
     beforeEach(function() {
-      React = require('React');
-      ReactTestUtils = require('ReactTestUtils');
+      React = require('React').inServerContext(document);
+      ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     });
 
     it("should handle className", function() {
@@ -177,6 +177,7 @@ describe('ReactDOMComponent', function() {
       React.render(<div>hello</div>, container);
 
       expect(container.firstChild.innerHTML).toEqual('hello');
+
       React.render(
         <div dangerouslySetInnerHTML={{__html: 'goodbye'}} />,
         container
@@ -462,6 +463,7 @@ describe('ReactDOMComponent', function() {
   });
 
   describe('unmountComponent', function() {
+    /* -- DISABLED FOR SERVER-REACT --
     it("should clean up listeners", function() {
       var React = require('React');
       var ReactBrowserEventEmitter = require('ReactBrowserEventEmitter');
@@ -475,7 +477,7 @@ describe('ReactDOMComponent', function() {
       instance = React.render(instance, container);
 
       var rootNode = instance.getDOMNode();
-      var rootNodeID = ReactMount.getID(rootNode);
+      var rootNodeID = ReactMount.getID(React.serverContext, rootNode);
       expect(
         ReactBrowserEventEmitter.getListener(rootNodeID, 'onClick')
       ).toBe(callback);
@@ -486,9 +488,12 @@ describe('ReactDOMComponent', function() {
         ReactBrowserEventEmitter.getListener(rootNodeID, 'onClick')
       ).toBe(undefined);
     });
+     * -- END DISABLED FOR SERVER-REACT --
+     */
   });
 
   describe('onScroll warning', function() {
+    /* -- DISABLED FOR SERVER-REACT -- (events never registered)
     it('should warn about the `onScroll` issue when unsupported (IE8)', () => {
       // Mock this here so we can mimic IE8 support. We require isEventSupported
       // before React so it's pre-mocked before React qould require it.
@@ -498,8 +503,8 @@ describe('ReactDOMComponent', function() {
       var isEventSupported = require('isEventSupported');
       isEventSupported.mockReturnValueOnce(false);
 
-      var React = require('React');
-      var ReactTestUtils = require('ReactTestUtils');
+      var React = require('React').inServerContext(document);
+      var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
       spyOn(console, 'warn');
       ReactTestUtils.renderIntoDocument(<div onScroll={function() {}} />);
@@ -508,12 +513,14 @@ describe('ReactDOMComponent', function() {
         'Warning: This browser doesn\'t support the `onScroll` event'
       );
     });
+    * -- END DISABELD FOR SERVER-REACT --
+    */
   });
 
   describe('tag sanitization', function() {
     it('should throw when an invalid tag name is used', () => {
       var React = require('React');
-      var ReactTestUtils = require('ReactTestUtils');
+      var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
       var hackzor = React.createElement('script tag');
       expect(
         () => ReactTestUtils.renderIntoDocument(hackzor)
@@ -524,7 +531,7 @@ describe('ReactDOMComponent', function() {
 
     it('should throw when an attack vector is used', () => {
       var React = require('React');
-      var ReactTestUtils = require('ReactTestUtils');
+      var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
       var hackzor = React.createElement('div><img /><div');
       expect(
         () => ReactTestUtils.renderIntoDocument(hackzor)

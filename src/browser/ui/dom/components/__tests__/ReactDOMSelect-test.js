@@ -23,7 +23,7 @@ describe('ReactDOMSelect', function() {
   beforeEach(function() {
     React = require('React');
     ReactLink = require('ReactLink');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   it('should allow setting `defaultValue`', function() {

@@ -16,12 +16,13 @@
  *
  * The activeElement will be null only if the document body is not yet defined.
  */
+
+var constantActiveElement = {};
+
 function getActiveElement() /*?DOMElement*/ {
-  try {
-    return document.activeElement || document.body;
-  } catch (e) {
-    return document.body;
-  }
+  // The implementation for getActiveElement is removed,
+  // as the server should never need to know about the active element.
+  return constantActiveElement;
 }
 
 module.exports = getActiveElement;

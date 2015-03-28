@@ -25,7 +25,7 @@ describe('ReactDOMInput', function() {
     require('mock-modules').dumpCache();
     React = require('React');
     ReactLink = require('ReactLink');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     spyOn(console, 'warn');
   });
 

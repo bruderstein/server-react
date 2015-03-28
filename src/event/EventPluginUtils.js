@@ -12,6 +12,7 @@
 'use strict';
 
 var EventConstants = require('EventConstants');
+var ReactServerContext = require('ReactServerContext');
 
 var invariant = require('invariant');
 
@@ -106,7 +107,8 @@ function forEachEventDispatch(event, cb) {
  * @param {string} domID DOM id to pass to the callback.
  */
 function executeDispatch(event, listener, domID) {
-  event.currentTarget = injection.Mount.getNode(domID);
+  // Empty ServerContext used here, as we don't care about events
+  event.currentTarget = injection.Mount.getNode(new ReactServerContext(), domID);
   var returnValue = listener(event, domID);
   event.currentTarget = null;
   return returnValue;

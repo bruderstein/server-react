@@ -1,5 +1,5 @@
 {
-  "name": "react",
+  "name": "server-react",
   "jstest": {
     "useAutoMock": false
   }

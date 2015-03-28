@@ -128,7 +128,7 @@ var ReactEventListener = {
     return EventListener.listen(
       element,
       handlerBaseName,
-      ReactEventListener.dispatchEvent.bind(null, topLevelType)
+      ReactEventListener.dispatchEvent.bind(null, element._serverContext, topLevelType)
     );
   },
 
@@ -150,16 +150,16 @@ var ReactEventListener = {
     return EventListener.capture(
       element,
       handlerBaseName,
-      ReactEventListener.dispatchEvent.bind(null, topLevelType)
+      ReactEventListener.dispatchEvent.bind(null, element._serverContext, topLevelType)
     );
   },
 
   monitorScrollValue: function(refresh) {
-    var callback = scrollValueMonitor.bind(null, refresh);
-    EventListener.listen(window, 'scroll', callback);
+    /* This method is removed because is needs window, and we really don't need it on the server
+     */
   },
 
-  dispatchEvent: function(topLevelType, nativeEvent) {
+  dispatchEvent: function(serverContext, topLevelType, nativeEvent) {
     if (!ReactEventListener._enabled) {
       return;
     }
@@ -171,7 +171,7 @@ var ReactEventListener = {
     try {
       // Event queue being processed in the same cycle allows
       // `preventDefault`.
-      ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
+      ReactUpdates.batchedUpdates(handleTopLevelImpl, serverContext, bookKeeping);
     } finally {
       TopLevelCallbackBookKeeping.release(bookKeeping);
     }

@@ -54,7 +54,7 @@ var DOMChildrenOperations = {
    * @param {array<string>} markupList List of markup strings.
    * @internal
    */
-  processUpdates: function(updates, markupList) {
+  processUpdates: function(serverContext, updates, markupList) {
     var update;
     // Mapping from parent IDs to initial child orderings.
     var initialChildren = null;
@@ -90,7 +90,7 @@ var DOMChildrenOperations = {
       }
     }
 
-    var renderedMarkup = Danger.dangerouslyRenderMarkup(markupList);
+    var renderedMarkup = Danger.dangerouslyRenderMarkup(serverContext, markupList);
 
     // Remove updated children first so that `toIndex` is consistent.
     if (updatedChildren) {

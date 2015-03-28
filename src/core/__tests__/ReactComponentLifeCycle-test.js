@@ -129,7 +129,7 @@ describe('ReactComponentLifeCycle', function() {
   beforeEach(function() {
     require('mock-modules').dumpCache();
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     ReactLifeCycle = require('ReactLifeCycle');
     ReactInstanceMap = require('ReactInstanceMap');
   });

@@ -23,7 +23,7 @@ describe('ReactTestUtils', function() {
     mocks = require('mocks');
 
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     warn = console.warn;
     console.warn = mocks.getMockFunction();

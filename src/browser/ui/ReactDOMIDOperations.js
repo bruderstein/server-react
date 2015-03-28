@@ -50,8 +50,8 @@ var ReactDOMIDOperations = {
    * @param {*} value New value of the property.
    * @internal
    */
-  updatePropertyByID: function(id, name, value) {
-    var node = ReactMount.getNode(id);
+  updatePropertyByID: function(serverContext, id, name, value) {
+    var node = ReactMount.getNode(serverContext, id);
     invariant(
       !INVALID_PROPERTY_ERRORS.hasOwnProperty(name),
       'updatePropertyByID(...): %s',
@@ -76,8 +76,8 @@ var ReactDOMIDOperations = {
    * @param {string} name A property name to remove, see `DOMProperty`.
    * @internal
    */
-  deletePropertyByID: function(id, name, value) {
-    var node = ReactMount.getNode(id);
+  deletePropertyByID: function(serverContext, id, name, value) {
+    var node = ReactMount.getNode(serverContext, id);
     invariant(
       !INVALID_PROPERTY_ERRORS.hasOwnProperty(name),
       'updatePropertyByID(...): %s',
@@ -94,8 +94,8 @@ var ReactDOMIDOperations = {
    * @param {object} styles Mapping from styles to values.
    * @internal
    */
-  updateStylesByID: function(id, styles) {
-    var node = ReactMount.getNode(id);
+  updateStylesByID: function(serverContext, id, styles) {
+    var node = ReactMount.getNode(serverContext, id);
     CSSPropertyOperations.setValueForStyles(node, styles);
   },
 
@@ -106,8 +106,8 @@ var ReactDOMIDOperations = {
    * @param {string} html An HTML string.
    * @internal
    */
-  updateInnerHTMLByID: function(id, html) {
-    var node = ReactMount.getNode(id);
+  updateInnerHTMLByID: function(serverContext, id, html) {
+    var node = ReactMount.getNode(serverContext, id);
     setInnerHTML(node, html);
   },
 
@@ -118,22 +118,23 @@ var ReactDOMIDOperations = {
    * @param {string} content Text content.
    * @internal
    */
-  updateTextContentByID: function(id, content) {
-    var node = ReactMount.getNode(id);
+  updateTextContentByID: function(serverContext, id, content) {
+    var node = ReactMount.getNode(serverContext, id);
     DOMChildrenOperations.updateTextContent(node, content);
   },
 
   /**
    * Replaces a DOM node that exists in the document with markup.
    *
+   * @param {ServerContext} serverContext containing document reference
    * @param {string} id ID of child to be replaced.
    * @param {string} markup Dangerous markup to inject in place of child.
    * @internal
    * @see {Danger.dangerouslyReplaceNodeWithMarkup}
    */
-  dangerouslyReplaceNodeWithMarkupByID: function(id, markup) {
-    var node = ReactMount.getNode(id);
-    DOMChildrenOperations.dangerouslyReplaceNodeWithMarkup(node, markup);
+  dangerouslyReplaceNodeWithMarkupByID: function(serverContext, id, markup) {
+    var node = ReactMount.getNode(serverContext, id);
+    DOMChildrenOperations.dangerouslyReplaceNodeWithMarkup(serverContext, node, markup);
   },
 
   /**
@@ -143,11 +144,11 @@ var ReactDOMIDOperations = {
    * @param {array<string>} markup List of markup strings.
    * @internal
    */
-  dangerouslyProcessChildrenUpdates: function(updates, markup) {
+  dangerouslyProcessChildrenUpdates: function(serverContext, updates, markup) {
     for (var i = 0; i < updates.length; i++) {
-      updates[i].parentNode = ReactMount.getNode(updates[i].parentID);
+      updates[i].parentNode = ReactMount.getNode(serverContext, updates[i].parentID);
     }
-    DOMChildrenOperations.processUpdates(updates, markup);
+    DOMChildrenOperations.processUpdates(serverContext, updates, markup);
   }
 };
 

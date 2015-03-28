@@ -13,8 +13,9 @@
 
 var React = require('React');
 var ReactInstanceMap = require('ReactInstanceMap');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 var ReactMount = require('ReactMount');
+var ReactServerContext = require('ReactServerContext');
 
 /**
  * Ensure that all callbacks are invoked, passing this unique argument.
@@ -78,7 +79,7 @@ describe('ReactInstanceHandles', function() {
   describe('isRenderedByReact', function() {
     it('should not crash on text nodes', function() {
       expect(function() {
-        ReactMount.isRenderedByReact(document.createTextNode('yolo'));
+        ReactMount.isRenderedByReact(new ServerContext(), document.createTextNode('yolo'));
       }).not.toThrow();
     });
   });

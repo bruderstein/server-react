@@ -16,6 +16,7 @@ var EventPluginHub = require('EventPluginHub');
 var EventPropagators = require('EventPropagators');
 var ExecutionEnvironment = require('ExecutionEnvironment');
 var ReactUpdates = require('ReactUpdates');
+var ReactServerContext = require('ReactServerContext');
 var SyntheticEvent = require('SyntheticEvent');
 
 var isEventSupported = require('isEventSupported');
@@ -88,7 +89,10 @@ function manualDispatchChangeEvent(nativeEvent) {
   // components don't work properly in conjunction with event bubbling because
   // the component is rerendered and the value reverted before all the event
   // handlers can run. See https://github.com/facebook/react/issues/708.
-  ReactUpdates.batchedUpdates(runEventInBatch, event);
+
+  // The hack here is an empty serverContext object, as we don't need
+  // this server side, and it's only to make the tests work
+  ReactUpdates.batchedUpdates(runEventInBatch, new ReactServerContext(document), event);
 }
 
 function runEventInBatch(event) {

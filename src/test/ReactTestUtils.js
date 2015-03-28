@@ -24,6 +24,7 @@ var ReactInstanceMap = require('ReactInstanceMap');
 var ReactMount = require('ReactMount');
 var ReactUpdates = require('ReactUpdates');
 var SyntheticEvent = require('SyntheticEvent');
+var ExecutionEnvironment = require('ExecutionEnvironment');
 
 var assign = require('Object.assign');
 
@@ -42,13 +43,13 @@ function Event(suffix) {}
  */
 var ReactTestUtils = {
   renderIntoDocument: function(instance) {
-    var div = document.createElement('div');
+    var div = this._serverContext.document.createElement('div');
     // None of our tests actually require attaching the container to the
     // DOM, and doing so creates a mess that we rely on test isolation to
     // clean up, so we're going to stop honoring the name of this method
     // (and probably rename it eventually) if no problems arise.
     // document.documentElement.appendChild(div);
-    return React.render(instance, div);
+    return React.render(instance, div, this._serverContext);
   },
 
   isElement: function(element) {
@@ -275,6 +276,7 @@ var ReactTestUtils = {
   simulateNativeEventOnNode: function(topLevelType, node, fakeNativeEvent) {
     fakeNativeEvent.target = node;
     ReactBrowserEventEmitter.ReactEventListener.dispatchEvent(
+      this._serverContext,
       topLevelType,
       fakeNativeEvent
     );
@@ -308,6 +310,26 @@ var ReactTestUtils = {
 
   createRenderer: function() {
     return new ReactShallowRenderer();
+  },
+
+  withServerContext: function(serverContext, callback) {
+    var reactTestUtils = Object.create(ReactTestUtils);
+    reactTestUtils.SimulateNative = Object.create(ReactTestUtils.SimulateNative);
+    serverContext.updateQueue = serverContext.updateQueue || [];
+    serverContext.markupQueue = serverContext.markupQueue || [];
+    serverContext.dirtyComponents = serverContext.dirtyComponents || [];
+
+    reactTestUtils._serverContext = serverContext;
+    if (ReactTestUtils.Simulate) {
+      reactTestUtils.Simulate = Object.create(reactTestUtils.Simulate);
+      reactTestUtils.Simulate._serverContext = serverContext;
+    }
+    reactTestUtils.SimulateNative._serverContext = serverContext;
+
+    if (callback) {
+      callback(reactTestUtils);
+    }
+    return reactTestUtils;
   },
 
   Simulate: null,
@@ -384,6 +406,9 @@ ReactShallowRenderer.prototype._render = function(element, transaction, context)
     var rootID = ReactInstanceHandles.createReactRootID();
     var instance = new ShallowComponentWrapper(element.type);
     instance.construct(element);
+    instance.serverContext = new ReactServerContext(
+      ExecutionEnvironment.canUseDOM ? document : null
+    );
 
     instance.mountComponent(rootID, transaction, context);
 
@@ -425,7 +450,7 @@ function makeSimulator(eventType) {
     ReactUpdates.batchedUpdates(function() {
       EventPluginHub.enqueueEvents(event);
       EventPluginHub.processEventQueue();
-    });
+    }, this._serverContext);
   };
 }
 

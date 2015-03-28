@@ -99,6 +99,7 @@ assign(ReactDOMTextComponent.prototype, {
         // other component types?
         this._stringText = nextStringText;
         ReactDOMComponent.BackendIDOperations.updateTextContentByID(
+          this._serverContext,
           this._rootNodeID,
           nextStringText
         );
@@ -107,7 +108,7 @@ assign(ReactDOMTextComponent.prototype, {
   },
 
   unmountComponent: function() {
-    ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._rootNodeID);
+    ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._serverContext, this._rootNodeID);
   }
 
 });

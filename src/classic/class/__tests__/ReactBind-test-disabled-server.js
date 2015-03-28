@@ -14,7 +14,7 @@
 var mocks = require('mocks');
 var React = require('React');
 var ReactDoNotBindDeprecated = require('ReactDoNotBindDeprecated');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 var reactComponentExpect = require('reactComponentExpect');
 
 // TODO: Test render and all stock methods.

@@ -23,7 +23,7 @@ describe('ReactIdentity', function() {
     require('mock-modules').dumpCache();
     React = require('React');
     ReactFragment = require('ReactFragment');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     reactComponentExpect = require('reactComponentExpect');
     ReactMount = require('ReactMount');
   });

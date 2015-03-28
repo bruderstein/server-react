@@ -35,7 +35,7 @@ var updateDepth = 0;
  * @type {array<object>}
  * @private
  */
-var updateQueue = [];
+// REMOVED - now using instance from the transaction: var updateQueue = [];
 
 /**
  * Queue of markup to be rendered.
@@ -43,7 +43,7 @@ var updateQueue = [];
  * @type {array<string>}
  * @private
  */
-var markupQueue = [];
+// REMOVED - now using instance from the transaction: var markupQueue = [];
 
 /**
  * Enqueues markup to be rendered and inserted at a supplied index.
@@ -53,7 +53,7 @@ var markupQueue = [];
  * @param {number} toIndex Destination index.
  * @private
  */
-function enqueueMarkup(parentID, markup, toIndex) {
+function enqueueMarkup(updateQueue, markupQueue, parentID, markup, toIndex) {
   // NOTE: Null values reduce hidden classes.
   updateQueue.push({
     parentID: parentID,
@@ -69,12 +69,13 @@ function enqueueMarkup(parentID, markup, toIndex) {
 /**
  * Enqueues moving an existing element to another index.
  *
+ * @param {array} updateQueue queue of updates for the current transaction.
  * @param {string} parentID ID of the parent component.
  * @param {number} fromIndex Source index of the existing element.
  * @param {number} toIndex Destination index of the element.
  * @private
  */
-function enqueueMove(parentID, fromIndex, toIndex) {
+function enqueueMove(updateQueue, parentID, fromIndex, toIndex) {
   // NOTE: Null values reduce hidden classes.
   updateQueue.push({
     parentID: parentID,
@@ -94,7 +95,7 @@ function enqueueMove(parentID, fromIndex, toIndex) {
  * @param {number} fromIndex Index of the element to remove.
  * @private
  */
-function enqueueRemove(parentID, fromIndex) {
+function enqueueRemove(updateQueue, parentID, fromIndex) {
   // NOTE: Null values reduce hidden classes.
   updateQueue.push({
     parentID: parentID,
@@ -114,11 +115,12 @@ function enqueueRemove(parentID, fromIndex) {
  * @param {string} textContent Text content to set.
  * @private
  */
-function enqueueTextContent(parentID, textContent) {
+function enqueueTextContent(updateQueue, parentID, textContent) {
   // NOTE: Null values reduce hidden classes.
   updateQueue.push({
     parentID: parentID,
-    parentNode: null,
+
+parentNode: null,
     type: ReactMultiChildUpdateTypes.TEXT_CONTENT,
     markupIndex: null,
     textContent: textContent,
@@ -132,13 +134,14 @@ function enqueueTextContent(parentID, textContent) {
  *
  * @private
  */
-function processQueue() {
-  if (updateQueue.length) {
+function processQueue(serverContext) {
+  if (serverContext.updateQueue.length) {
     ReactComponentEnvironment.processChildrenUpdates(
-      updateQueue,
-      markupQueue
+      serverContext,
+      serverContext.updateQueue,
+      serverContext.markupQueue
     );
-    clearQueue();
+    clearQueue(serverContext);
   }
 }
 
@@ -147,9 +150,9 @@ function processQueue() {
  *
  * @private
  */
-function clearQueue() {
-  updateQueue.length = 0;
-  markupQueue.length = 0;
+function clearQueue(serverContext) {
+  serverContext.updateQueue.length = 0;
+  serverContext.markupQueue.length = 0;
 }
 
 /**
@@ -179,7 +182,7 @@ var ReactMultiChild = {
      */
     mountChildren: function(nestedChildren, transaction, context) {
       var children = ReactChildReconciler.instantiateChildren(
-        nestedChildren, transaction, context
+        nestedChildren, transaction, context, this._serverContext
       );
       this._renderedChildren = children;
       var mountImages = [];
@@ -229,9 +232,9 @@ var ReactMultiChild = {
         updateDepth--;
         if (!updateDepth) {
           if (errorThrown) {
-            clearQueue();
+            clearQueue(this._serverContext);
           } else {
-            processQueue();
+            processQueue(this._serverContext);
           }
         }
       }
@@ -254,9 +257,9 @@ var ReactMultiChild = {
         updateDepth--;
         if (!updateDepth) {
           if (errorThrown) {
-            clearQueue();
+            clearQueue(this._serverContext);
           } else {
-            processQueue();
+            processQueue(this._serverContext);
           }
         }
 
@@ -275,7 +278,11 @@ var ReactMultiChild = {
     _updateChildren: function(nextNestedChildren, transaction, context) {
       var prevChildren = this._renderedChildren;
       var nextChildren = ReactChildReconciler.updateChildren(
-        prevChildren, nextNestedChildren, transaction, context
+        prevChildren,
+        nextNestedChildren,
+        transaction,
+        context,
+        this._serverContext
       );
       this._renderedChildren = nextChildren;
       if (!nextChildren && !prevChildren) {
@@ -333,6 +340,7 @@ var ReactMultiChild = {
     /**
      * Moves a child component to the supplied index.
      *
+     * @param {Updates} updates updateQueue and markupQueue for this transaction
      * @param {ReactComponent} child Component to move.
      * @param {number} toIndex Destination index of the element.
      * @param {number} lastIndex Last index visited of the siblings of `child`.
@@ -343,39 +351,42 @@ var ReactMultiChild = {
       // be moved. Otherwise, we do not need to move it because a child will be
       // inserted or moved before `child`.
       if (child._mountIndex < lastIndex) {
-        enqueueMove(this._rootNodeID, child._mountIndex, toIndex);
+        enqueueMove(this._serverContext, this._rootNodeID, child._mountIndex, toIndex);
       }
     },
 
     /**
      * Creates a child component.
      *
+     * @param {Updates} updates updateQueue and markupQueue for this transaction
      * @param {ReactComponent} child Component to create.
      * @param {string} mountImage Markup to insert.
      * @protected
      */
     createChild: function(child, mountImage) {
-      enqueueMarkup(this._rootNodeID, mountImage, child._mountIndex);
+      enqueueMarkup(this._serverContext.updateQueue, this._serverContext.markupQueue, this._rootNodeID, mountImage, child._mountIndex);
     },
 
     /**
      * Removes a child component.
      *
+     * @param {Updates} updates updateQueue and markupQueue for this transaction
      * @param {ReactComponent} child Child to remove.
      * @protected
      */
     removeChild: function(child) {
-      enqueueRemove(this._rootNodeID, child._mountIndex);
+      enqueueRemove(this._serverContext.updateQueue, this._rootNodeID, child._mountIndex);
     },
 
     /**
      * Sets this text content string.
      *
+     * @param {Updates} updates updateQueue and markupQueue for this transaction
      * @param {string} textContent Text content to set.
      * @protected
      */
     setTextContent: function(textContent) {
-      enqueueTextContent(this._rootNodeID, textContent);
+      enqueueTextContent(this._serverContext.updateQueue, this._rootNodeID, textContent);
     },
 
     /**
@@ -412,6 +423,7 @@ var ReactMultiChild = {
      *
      * NOTE: This is part of `updateChildren` and is here for readability.
      *
+     * @param {Updates} updates updateQueue and markupQueue for this transaction
      * @param {ReactComponent} child Component to unmount.
      * @param {string} name Name of the child in `this._renderedChildren`.
      * @private

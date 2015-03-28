@@ -24,7 +24,7 @@ describe('ReactEmptyComponent', function() {
 
     React = require('React');
     ReactEmptyComponent = require('ReactEmptyComponent');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     reactComponentExpect = require('reactComponentExpect');
 

@@ -50,12 +50,12 @@ function getNodeName(markup) {
  * @param {?function} handleScript Invoked once for each rendered <script>.
  * @return {array<DOMElement|DOMTextNode>} An array of rendered nodes.
  */
-function createNodesFromMarkup(markup, handleScript) {
-  var node = dummyNode;
-  invariant(!!dummyNode, 'createNodesFromMarkup dummy not initialized');
+function createNodesFromMarkup(serverContext, markup, handleScript) {
+  var node = serverContext._createNodesFromMarkupDummyNode ||
+    (serverContext._createNodesFromMarkupDummyNode = serverContext.document.createElement('div'));
   var nodeName = getNodeName(markup);
 
-  var wrap = nodeName && getMarkupWrap(nodeName);
+  var wrap = nodeName && getMarkupWrap(serverContext, nodeName);
   if (wrap) {
     node.innerHTML = wrap[1] + markup + wrap[2];
 

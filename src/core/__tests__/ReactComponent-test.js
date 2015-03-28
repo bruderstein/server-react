@@ -21,9 +21,9 @@ var reactComponentExpect;
 describe('ReactComponent', function() {
   beforeEach(function() {
     mocks = require('mocks');
-    React = require('React');
+    React = require('React').inServerContext(document);
     ReactInstanceMap = require('ReactInstanceMap');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     reactComponentExpect = require('reactComponentExpect');
   });
 

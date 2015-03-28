@@ -16,7 +16,7 @@ var ReactTransitionChildMapping;
 
 describe('ReactTransitionChildMapping', function() {
   beforeEach(function() {
-    React = require('React');
+    React = require('React').inServerContext(document);
     ReactTransitionChildMapping = require('ReactTransitionChildMapping');
   });
 

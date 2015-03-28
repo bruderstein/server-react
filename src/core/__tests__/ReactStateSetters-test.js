@@ -13,7 +13,7 @@
 
 var React = require('React');
 var ReactStateSetters = require('ReactStateSetters');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
 var TestComponent;
 var TestComponentWithMixin;

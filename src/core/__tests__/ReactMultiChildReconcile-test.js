@@ -15,7 +15,7 @@ require('mock-modules');
 
 var React = require('React');
 var ReactInstanceMap = require('ReactInstanceMap');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 var ReactMount = require('ReactMount');
 
 var mapObject = require('mapObject');

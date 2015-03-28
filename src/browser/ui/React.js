@@ -25,11 +25,13 @@ var ReactDOM = require('ReactDOM');
 var ReactDOMTextComponent = require('ReactDOMTextComponent');
 var ReactDefaultInjection = require('ReactDefaultInjection');
 var ReactInstanceHandles = require('ReactInstanceHandles');
+var ReactMarkupChecksum = require('ReactMarkupChecksum');
 var ReactMount = require('ReactMount');
 var ReactPerf = require('ReactPerf');
 var ReactPropTypes = require('ReactPropTypes');
 var ReactReconciler = require('ReactReconciler');
 var ReactServerRendering = require('ReactServerRendering');
+var ReactInServerContext = require('ReactInServerContext');
 
 var assign = require('Object.assign');
 var findDOMNode = require('findDOMNode');
@@ -73,12 +75,15 @@ var React = {
   constructAndRenderComponent: ReactMount.constructAndRenderComponent,
   constructAndRenderComponentByID: ReactMount.constructAndRenderComponentByID,
   findDOMNode: findDOMNode,
+  getServerContext: ReactMount.getServerContext,
   render: render,
   renderToString: ReactServerRendering.renderToString,
   renderToStaticMarkup: ReactServerRendering.renderToStaticMarkup,
   unmountComponentAtNode: ReactMount.unmountComponentAtNode,
   isValidElement: ReactElement.isValidElement,
   withContext: ReactContext.withContext,
+  inServerContext: ReactInServerContext.inServerContext,
+  addChecksumToMarkup: ReactMarkupChecksum.addChecksumToMarkup,
 
   // Hook for JSX spread, don't use this for anything else.
   __spread: assign
@@ -143,6 +148,6 @@ if (__DEV__) {
   }
 }
 
-React.version = '0.13.1';
+React.version = '0.13.100';
 
 module.exports = React;

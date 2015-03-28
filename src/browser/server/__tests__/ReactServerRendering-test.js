@@ -36,10 +36,10 @@ var ID_ATTRIBUTE_NAME;
 describe('ReactServerRendering', function() {
   beforeEach(function() {
     require('mock-modules').dumpCache();
-    React = require('React');
+    React = require('React').inServerContext(document);
     ReactMarkupChecksum = require('ReactMarkupChecksum');
     ReactMount = require('ReactMount');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document});
     ReactReconcileTransaction = require('ReactReconcileTransaction');
 
     ExecutionEnvironment = require('ExecutionEnvironment');
@@ -179,6 +179,7 @@ describe('ReactServerRendering', function() {
       var element = document.createElement('div');
       React.render(<TestComponent />, element);
 
+
       var lastMarkup = element.innerHTML;
 
       // Exercise the update path. Markup should not change,
@@ -223,10 +224,14 @@ describe('ReactServerRendering', function() {
       expect(element.innerHTML.length > 0).toBe(true);
       expect(element.innerHTML).not.toEqual(lastMarkup);
 
+
+      /* -- DISABLED FOR SERVER-REACT --
       // Ensure the events system works
       expect(numClicks).toEqual(0);
       ReactTestUtils.Simulate.click(instance.refs.span.getDOMNode());
       expect(numClicks).toEqual(1);
+      * -- END DISABLED FOR SERVER-REACT --
+      */
     });
 
     it('should throw with silly args', function() {

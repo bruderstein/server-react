@@ -16,6 +16,7 @@
 describe('ReactDOMIDOperations', function() {
   var DOMPropertyOperations = require('DOMPropertyOperations');
   var ReactDOMIDOperations = require('ReactDOMIDOperations');
+  var ReactServerContext = require('ReactServerContext');
   var ReactMount = require('ReactMount');
   var keyOf = require('keyOf');
 
@@ -25,6 +26,7 @@ describe('ReactDOMIDOperations', function() {
 
     expect(function() {
       ReactDOMIDOperations.updatePropertyByID(
+        new ReactServerContext(null),
         'testID',
         keyOf({dangerouslySetInnerHTML: null}),
         {__html: 'testContent'}
@@ -32,7 +34,7 @@ describe('ReactDOMIDOperations', function() {
     }).toThrow();
 
     expect(
-      ReactMount.getNode.argsForCall[0][0]
+      ReactMount.getNode.argsForCall[0][1]
     ).toBe('testID');
 
     expect(
@@ -47,12 +49,13 @@ describe('ReactDOMIDOperations', function() {
     var html = '\n  \t  <span>  \n  testContent  \t  </span>  \n  \t';
 
     ReactDOMIDOperations.updateInnerHTMLByID(
+      new ReactServerContext(),
       'testID',
       html
     );
 
     expect(
-      ReactMount.getNode.argsForCall[0][0]
+      ReactMount.getNode.argsForCall[0][1]
     ).toBe('testID');
 
     expect(stubNode.innerHTML).toBe(html);

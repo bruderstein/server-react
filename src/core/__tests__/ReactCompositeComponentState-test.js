@@ -25,7 +25,7 @@ describe('ReactCompositeComponent-state', function() {
   beforeEach(function() {
     React = require('React');
     ReactInstanceMap = require('ReactInstanceMap');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     reactComponentExpect = require('reactComponentExpect');
 
     TestComponent = React.createClass({
@@ -140,6 +140,7 @@ describe('ReactCompositeComponent-state', function() {
     var instance = React.render(
       <TestComponent stateListener={stateListener} />,
       container,
+      null,
       function peekAtInitialCallback() {
         this.peekAtState('initial-callback');
       }

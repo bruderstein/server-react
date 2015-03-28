@@ -48,12 +48,13 @@ function isInternalComponentType(type) {
 /**
  * Given a ReactNode, create an instance that will actually be mounted.
  *
+ * @param {ServerContext} serverContext context with the update queue
  * @param {ReactNode} node
  * @param {*} parentCompositeType The composite type that resolved this.
  * @return {object} A new instance of the element's constructor.
  * @protected
  */
-function instantiateReactComponent(node, parentCompositeType) {
+function instantiateReactComponent(serverContext, node, parentCompositeType) {
   var instance;
 
   if (node === null || node === false) {
@@ -113,6 +114,10 @@ function instantiateReactComponent(node, parentCompositeType) {
   // storing the state needed by the diffing algorithms elsewhere.
   instance._mountIndex = 0;
   instance._mountImage = null;
+
+  // Set the serverContext, so that future calls to setState can queue the
+  // update in the server context
+  instance._serverContext = serverContext;
 
   if (__DEV__) {
     instance._isOwnerNecessary = false;

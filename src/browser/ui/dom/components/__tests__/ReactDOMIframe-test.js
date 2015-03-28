@@ -17,7 +17,7 @@ describe('ReactDOMIframe', function() {
 
   beforeEach(function() {
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   it('should trigger load events', function() {

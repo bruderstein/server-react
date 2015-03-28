@@ -40,7 +40,7 @@ describe('ReactDOMButton', function() {
 
   beforeEach(function() {
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   it('should forward clicks when it starts out not disabled', function() {

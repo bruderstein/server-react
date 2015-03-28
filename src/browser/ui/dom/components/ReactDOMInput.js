@@ -83,13 +83,13 @@ var ReactDOMInput = ReactClass.createClass({
   },
 
   componentDidMount: function() {
-    var id = ReactMount.getID(this.getDOMNode());
+    var id = ReactMount.getID(React.getServerContext(this), this.getDOMNode());
     instancesByReactID[id] = this;
   },
 
   componentWillUnmount: function() {
     var rootNode = this.getDOMNode();
-    var id = ReactMount.getID(rootNode);
+    var id = ReactMount.getID(React.getServerContext(this), rootNode);
     delete instancesByReactID[id];
   },
 
@@ -146,7 +146,7 @@ var ReactDOMInput = ReactClass.createClass({
             otherNode.form !== rootNode.form) {
           continue;
         }
-        var otherID = ReactMount.getID(otherNode);
+        var otherID = ReactMount.getID(React.getServerContext(this), otherNode);
         invariant(
           otherID,
           'ReactDOMInput: Mixing React and non-React radio inputs with the ' +

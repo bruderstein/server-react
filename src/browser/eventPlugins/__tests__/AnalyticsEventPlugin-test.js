@@ -33,7 +33,7 @@ describe('AnalyticsEventPlugin', function() {
     EventPluginRegistry = require('EventPluginRegistry');
     React = require('React');
     ReactBrowserEventEmitter = require('ReactBrowserEventEmitter');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     EventPluginRegistry._resetEventPlugins();
 

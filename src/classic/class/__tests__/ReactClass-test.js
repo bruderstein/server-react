@@ -20,7 +20,7 @@ describe('ReactClass-spec', function() {
 
   beforeEach(function() {
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     spyOn(console, 'warn');
   });
 

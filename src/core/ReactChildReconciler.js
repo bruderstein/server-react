@@ -33,14 +33,21 @@ var ReactChildReconciler = {
    * @return {?object} A set of child instances.
    * @internal
    */
-  instantiateChildren: function(nestedChildNodes, transaction, context) {
+  instantiateChildren: function(
+    nestedChildNodes,
+    transaction,
+    context,
+    serverContext
+  ) {
     var children = flattenChildren(nestedChildNodes);
     for (var name in children) {
       if (children.hasOwnProperty(name)) {
         var child = children[name];
         // The rendered children must be turned into instances as they're
         // mounted.
-        var childInstance = instantiateReactComponent(child, null);
+        var childInstance = instantiateReactComponent(
+          serverContext, child, null
+        );
         children[name] = childInstance;
       }
     }
@@ -61,7 +68,8 @@ var ReactChildReconciler = {
     prevChildren,
     nextNestedChildNodes,
     transaction,
-    context) {
+    context,
+    serverContext) {
     // We currently don't have a way to track moves here but if we use iterators
     // instead of for..in we can zip the iterators and check if an item has
     // moved.
@@ -90,6 +98,7 @@ var ReactChildReconciler = {
         }
         // The child must be instantiated before it's mounted.
         var nextChildInstance = instantiateReactComponent(
+          serverContext,
           nextElement,
           null
         );

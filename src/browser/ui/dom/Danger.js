@@ -50,7 +50,7 @@ var Danger = {
    * @return {array<DOMElement>} List of rendered nodes.
    * @internal
    */
-  dangerouslyRenderMarkup: function(markupList) {
+  dangerouslyRenderMarkup: function(serverContext, markupList) {
     invariant(
       ExecutionEnvironment.canUseDOM,
       'dangerouslyRenderMarkup(...): Cannot render markup in a worker ' +
@@ -67,7 +67,7 @@ var Danger = {
         'dangerouslyRenderMarkup(...): Missing markup.'
       );
       nodeName = getNodeName(markupList[i]);
-      nodeName = getMarkupWrap(nodeName) ? nodeName : '*';
+      nodeName = getMarkupWrap(serverContext, nodeName) ? nodeName : '*';
       markupByNodeName[nodeName] = markupByNodeName[nodeName] || [];
       markupByNodeName[nodeName][i] = markupList[i];
     }
@@ -100,6 +100,7 @@ var Danger = {
 
       // Render each group of markup with similar wrapping `nodeName`.
       var renderNodes = createNodesFromMarkup(
+        serverContext,
         markupListByNodeName.join(''),
         emptyFunction // Do nothing special with <script> tags.
       );
@@ -157,7 +158,7 @@ var Danger = {
    * @param {string} markup Markup to render in place of the child node.
    * @internal
    */
-  dangerouslyReplaceNodeWithMarkup: function(oldChild, markup) {
+  dangerouslyReplaceNodeWithMarkup: function(serverContext, oldChild, markup) {
     invariant(
       ExecutionEnvironment.canUseDOM,
       'dangerouslyReplaceNodeWithMarkup(...): Cannot render markup in a ' +
@@ -174,7 +175,7 @@ var Danger = {
       'server rendering. See React.renderToString().'
     );
 
-    var newChild = createNodesFromMarkup(markup, emptyFunction)[0];
+    var newChild = createNodesFromMarkup(serverContext, markup, emptyFunction)[0];
     oldChild.parentNode.replaceChild(newChild, oldChild);
   }
 

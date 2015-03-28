@@ -51,7 +51,7 @@ describe('ReactPropTypes', function() {
     React = require('React');
     ReactFragment = require('ReactFragment');
     ReactPropTypeLocations = require('ReactPropTypeLocations');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   describe('Primitive Types', function() {

@@ -34,7 +34,7 @@ describe('ReactCompositeComponent', function() {
     ReactCurrentOwner = require('ReactCurrentOwner');
     ReactDoNotBindDeprecated = require('ReactDoNotBindDeprecated');
     ReactPropTypes = require('ReactPropTypes');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     ReactMount = require('ReactMount');
     ReactServerRendering = require('ReactServerRendering');
 

@@ -230,6 +230,7 @@ var ReactCompositeComponentMixin = {
     }
 
     this._renderedComponent = this._instantiateReactComponent(
+      this._serverContext,
       renderedElement,
       this._currentElement.type // The wrapping type
     );
@@ -736,6 +737,7 @@ var ReactCompositeComponentMixin = {
       ReactReconciler.unmountComponent(prevComponentInstance);
 
       this._renderedComponent = this._instantiateReactComponent(
+        this._serverContext,
         nextRenderedElement,
         this._currentElement.type
       );
@@ -754,6 +756,7 @@ var ReactCompositeComponentMixin = {
    */
   _replaceNodeWithMarkupByID: function(prevComponentID, nextMarkup) {
     ReactComponentEnvironment.replaceNodeWithMarkupByID(
+      this._serverContext,
       prevComponentID,
       nextMarkup
     );

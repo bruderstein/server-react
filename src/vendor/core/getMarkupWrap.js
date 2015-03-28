@@ -15,9 +15,10 @@ var invariant = require('invariant');
 
 /**
  * Dummy container used to detect which wraps are necessary.
+ * Removed for server version (need unique per server context
  */
-var dummyNode =
-  ExecutionEnvironment.canUseDOM ? document.createElement('div') : null;
+// var dummyNode =
+//   ExecutionEnvironment.canUseDOM ? document.createElement('div') : null;
 
 /**
  * Some browsers cannot use `innerHTML` to render certain elements standalone,
@@ -93,8 +94,10 @@ var markupWrap = {
  * @param {string} nodeName Lowercase `nodeName`.
  * @return {?array} Markup wrap configuration, if applicable.
  */
-function getMarkupWrap(nodeName) {
-  invariant(!!dummyNode, 'Markup wrapping node not initialized');
+function getMarkupWrap(serverContext, nodeName) {
+  var dummyNode = serverContext._getMarkupWrapDummyNode ||
+    (serverContext._getMarkupWrapDummyNode = serverContext.document.createElement('div'));
+
   if (!markupWrap.hasOwnProperty(nodeName)) {
     nodeName = '*';
   }

@@ -20,7 +20,7 @@ describe('ReactCompositeComponentNestedState-state', function() {
 
   beforeEach(function() {
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   it('should provide up to date values for props', function() {

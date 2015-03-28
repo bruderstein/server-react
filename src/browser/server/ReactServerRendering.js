@@ -16,6 +16,7 @@ var ReactInstanceHandles = require('ReactInstanceHandles');
 var ReactMarkupChecksum = require('ReactMarkupChecksum');
 var ReactServerRenderingTransaction =
   require('ReactServerRenderingTransaction');
+var ReactServerContext = require('ReactServerContext');
 
 var emptyObject = require('emptyObject');
 var instantiateReactComponent = require('instantiateReactComponent');
@@ -36,8 +37,9 @@ function renderToString(element) {
     var id = ReactInstanceHandles.createReactRootID();
     transaction = ReactServerRenderingTransaction.getPooled(false);
 
+    var serverContext = new ReactServerContext(null);
     return transaction.perform(function() {
-      var componentInstance = instantiateReactComponent(element, null);
+      var componentInstance = instantiateReactComponent(serverContext, element, null);
       var markup =
         componentInstance.mountComponent(id, transaction, emptyObject);
       return ReactMarkupChecksum.addChecksumToMarkup(markup);
@@ -62,9 +64,10 @@ function renderToStaticMarkup(element) {
   try {
     var id = ReactInstanceHandles.createReactRootID();
     transaction = ReactServerRenderingTransaction.getPooled(true);
+    var serverContext = new ReactServerContext(null);
 
     return transaction.perform(function() {
-      var componentInstance = instantiateReactComponent(element, null);
+      var componentInstance = instantiateReactComponent(serverContext, element, null);
       return componentInstance.mountComponent(id, transaction, emptyObject);
     }, null);
   } finally {

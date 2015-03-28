@@ -92,8 +92,8 @@ describe('ReactBrowserEventEmitter', function() {
     ReactMount = require('ReactMount');
     EventListener = require('EventListener');
     ReactBrowserEventEmitter = require('ReactBrowserEventEmitter');
-    ReactTestUtils = require('ReactTestUtils');
-    ReactMount.getNode = function(id) {
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
+    ReactMount.getNode = function(serverContext, id) {
       return idToNode[id];
     };
     idCallOrder = [];

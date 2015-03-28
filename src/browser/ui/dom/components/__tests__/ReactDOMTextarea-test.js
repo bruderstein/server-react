@@ -24,7 +24,7 @@ describe('ReactDOMTextarea', function() {
   beforeEach(function() {
     React = require('React');
     ReactLink = require('ReactLink');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     renderTextarea = function(component) {
       var stub = ReactTestUtils.renderIntoDocument(component);

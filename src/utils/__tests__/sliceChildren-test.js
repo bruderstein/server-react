@@ -25,7 +25,7 @@ describe('sliceChildren', function() {
   beforeEach(function() {
     React = require('React');
     ReactFragment = require('ReactFragment');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     sliceChildren = require('sliceChildren');
     reactComponentExpect = require('reactComponentExpect');

@@ -62,6 +62,7 @@ function ReactServerRenderingTransaction(renderToStaticMarkup) {
   this.renderToStaticMarkup = renderToStaticMarkup;
   this.reactMountReady = CallbackQueue.getPooled(null);
   this.putListenerQueue = ReactPutListenerQueue.getPooled();
+  this.updates = { updateQueue: [], markupQueue: [] };
 }
 
 var Mixin = {

@@ -734,9 +734,9 @@ var ReactClassMixin = {
    * type signature and the only use case for this, is to avoid that.
    */
   replaceState: function(newState, callback) {
-    ReactUpdateQueue.enqueueReplaceState(this, newState);
+    ReactUpdateQueue.enqueueReplaceState(ReactInstanceMap.get(this)._serverContext, this, newState);
     if (callback) {
-      ReactUpdateQueue.enqueueCallback(this, callback);
+      ReactUpdateQueue.enqueueCallback(ReactInstanceMap.get(this)._serverContext, this, callback);
     }
   },
 
@@ -779,9 +779,9 @@ var ReactClassMixin = {
    * @deprecated
    */
   setProps: function(partialProps, callback) {
-    ReactUpdateQueue.enqueueSetProps(this, partialProps);
+    ReactUpdateQueue.enqueueSetProps(ReactInstanceMap.get(this)._serverContext, this, partialProps);
     if (callback) {
-      ReactUpdateQueue.enqueueCallback(this, callback);
+      ReactUpdateQueue.enqueueCallback(ReactInstanceMap.get(this)._serverContext, this, callback);
     }
   },
 
@@ -795,9 +795,9 @@ var ReactClassMixin = {
    * @deprecated
    */
   replaceProps: function(newProps, callback) {
-    ReactUpdateQueue.enqueueReplaceProps(this, newProps);
+    ReactUpdateQueue.enqueueReplaceProps(ReactInstanceMap.get(this)._serverContext, this, newProps);
     if (callback) {
-      ReactUpdateQueue.enqueueCallback(this, callback);
+      ReactUpdateQueue.enqueueCallback(ReactInstanceMap.get(this)._serverContext, this, callback);
     }
   }
 };

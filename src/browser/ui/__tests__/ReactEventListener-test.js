@@ -30,7 +30,7 @@ describe('ReactEventListener', function() {
 
     ReactMount = require('ReactMount');
     ReactEventListener = require('ReactEventListener');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
     handleTopLevel = mocks.getMockFunction();
     ReactEventListener._handleTopLevel = handleTopLevel;
@@ -47,7 +47,7 @@ describe('ReactEventListener', function() {
         ReactMount.render(parentControl, parentContainer);
       parentControl.getDOMNode().appendChild(childContainer);
 
-      var callback = ReactEventListener.dispatchEvent.bind(null, 'test');
+      var callback = ReactEventListener.dispatchEvent.bind(null, childControl._serverContext, 'test');
       callback({
         target: childControl.getDOMNode()
       });
@@ -67,13 +67,13 @@ describe('ReactEventListener', function() {
       var grandParentControl = <div>Parent</div>;
       childControl = ReactMount.render(childControl, childContainer);
       parentControl =
-        ReactMount.render(parentControl, parentContainer);
+        ReactMount.render(parentControl, parentContainer, childControl._serverContext);
       grandParentControl =
-        ReactMount.render(grandParentControl, grandParentContainer);
+        ReactMount.render(grandParentControl, grandParentContainer, childControl._serverContext);
       parentControl.getDOMNode().appendChild(childContainer);
       grandParentControl.getDOMNode().appendChild(parentContainer);
 
-      var callback = ReactEventListener.dispatchEvent.bind(null, 'test');
+      var callback = ReactEventListener.dispatchEvent.bind(null, childControl._serverContext, 'test');
       callback({
         target: childControl.getDOMNode()
       });
@@ -109,7 +109,7 @@ describe('ReactEventListener', function() {
         }
       );
 
-      var callback = ReactEventListener.dispatchEvent.bind(null, 'test');
+      var callback = ReactEventListener.dispatchEvent.bind(null, childControl._serverContext, 'test');
       callback({
         target: childNode
       });
@@ -127,9 +127,13 @@ describe('ReactEventListener', function() {
         <div>Child</div>,
         childContainer
       );
+      var serverContext = React.getServerContext(childControl);
+      expect(serverContext).toBeDefined();
+
       var parentControl = ReactMount.render(
         <div>Parent</div>,
-        parentContainer
+        parentContainer,
+        serverContext    // use the same server context for the two components
       );
       parentControl.getDOMNode().appendChild(childContainer);
 
@@ -148,7 +152,7 @@ describe('ReactEventListener', function() {
       );
 
       var callback =
-        ReactEventListener.dispatchEvent.bind(ReactEventListener, 'test');
+        ReactEventListener.dispatchEvent.bind(ReactEventListener, childControl._serverContext, 'test');
       callback({
         target: childNode
       });
@@ -175,7 +179,7 @@ describe('ReactEventListener', function() {
 
     var instance = ReactTestUtils.renderIntoDocument(<Wrapper />);
 
-    var callback = ReactEventListener.dispatchEvent.bind(null, 'test');
+    var callback = ReactEventListener.dispatchEvent.bind(null, instance._serverContext, 'test');
     callback({
       target: instance.getInner().getDOMNode()
     });

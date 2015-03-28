@@ -1,12 +1,12 @@
 {
-  "name": "react",
-  "description": "React is a JavaScript library for building user interfaces.",
-  "version": "0.13.1",
+  "name": "server-react",
+  "description": "React is a JavaScript library for building user interfaces. This is a hacked together server version, for prerendering on the server. Not affiliated with the official React",
+  "version": "0.13.100",
   "keywords": [
     "react"
   ],
-  "homepage": "https://github.com/facebook/react/tree/master/npm-react",
-  "bugs": "https://github.com/facebook/react/issues?labels=react-core",
+  "homepage": "https://github.com/bruderstein/server-react/tree/master/npm-react",
+  "bugs": "https://github.com/bruderstein/server-react/issues",
   "license": "BSD-3-Clause",
   "files": [
     "README.md",
@@ -18,7 +18,7 @@
   "main": "react.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/facebook/react"
+    "url": "https://github.com/bruderstein/server-react"
   },
   "engines": {
     "node": ">=0.10.0"

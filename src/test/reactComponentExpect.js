@@ -13,7 +13,7 @@
 'use strict';
 
 var ReactInstanceMap = require('ReactInstanceMap');
-var ReactTestUtils = require('ReactTestUtils');
+var ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
 
 var assign = require('Object.assign');
 

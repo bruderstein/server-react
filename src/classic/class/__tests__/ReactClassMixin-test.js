@@ -27,7 +27,7 @@ describe('ReactClass-mixin', function() {
 
   beforeEach(function() {
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
     reactComponentExpect = require('reactComponentExpect');
     mixinPropValidator = mocks.getMockFunction();
     componentPropValidator = mocks.getMockFunction();

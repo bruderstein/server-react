@@ -23,7 +23,8 @@ var ReactBrowserComponentMixin = require('ReactBrowserComponentMixin');
 var ReactClass = require('ReactClass');
 var ReactComponentBrowserEnvironment =
   require('ReactComponentBrowserEnvironment');
-var ReactDefaultBatchingStrategy = require('ReactDefaultBatchingStrategy');
+var ReactServerBatchingStrategy = require('ReactServerBatchingStrategy');
+var ReactServerTestingBatchingStrategy = require('ReactServerTestingBatchingStrategy');
 var ReactDOMComponent = require('ReactDOMComponent');
 var ReactDOMButton = require('ReactDOMButton');
 var ReactDOMForm = require('ReactDOMForm');
@@ -129,7 +130,7 @@ function inject() {
     ReactReconcileTransaction
   );
   ReactInjection.Updates.injectBatchingStrategy(
-    ReactDefaultBatchingStrategy
+    ReactServerTestingBatchingStrategy
   );
 
   ReactInjection.RootIndex.injectCreateReactRootIndex(

@@ -21,7 +21,7 @@ describe('LocalEventTrapMixin', function() {
     EventConstants = require('EventConstants');
     LocalEventTrapMixin = require('LocalEventTrapMixin');
     React = require('React');
-    ReactTestUtils = require('ReactTestUtils');
+    ReactTestUtils = require('ReactTestUtils').withServerContext({ document: document });
   });
 
   it('throws when trapping bubbled state on null', function() {
